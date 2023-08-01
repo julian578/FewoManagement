@@ -116,6 +116,8 @@ bookingRouter.post("/client/:id", verifyToken, async(req, res) => {
     }
 })
 
+
+
 //get all clients
 bookingRouter.get("/client", verifyToken, async(req, res) => {
     try {

@@ -16,7 +16,8 @@ invoiceRouter.post("/", verifyToken, loadBooking, loadClient, generateInvoiceId,
         //invoice status updated to 1, which means that an invoice for this booking is generated
         const update = {invoiceStatus: 1};
         await booking.updateOne(update);   
-        res.sendStatus(200);
+        //console.log(req.binaryFile);
+        res.send(req.binaryFile);
     } catch(err) {
         console.log(err);
         res.sendStatus(500);
@@ -37,6 +38,8 @@ invoiceRouter.get("/", verifyToken, async(req, res) => {
         res.sendStatust(500);
     }
 })
+
+
 
 //get invoice by invoiceId
 invoiceRouter.get("/invoiceId/:invoiceId", verifyToken, async(req, res) => {

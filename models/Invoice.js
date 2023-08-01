@@ -13,7 +13,8 @@ const invoiceSchema = new mongoose.Schema({
     date: String,
     booking: mongoose.Schema.Types.ObjectId,
     invoiceId: Number,
-    fileName: String
+    fileName: String,
+    invoiceData: Object
 })
 
 

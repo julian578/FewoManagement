@@ -136,6 +136,9 @@ async function generateInvoiceData(req, res, next) {
             data.dc = ""
         }
 
+        if(data.sn === "- -") data.sn = "";
+        if(data.ps==="- -") data.ps = "";
+
         console.log(data)
         req.invoiceData = data;
 
@@ -209,11 +212,13 @@ async function createInvoice(req, res, next) {
             date: req.date,
             booking: req.booking._id,
             invoiceId: req.invoiceId,
-            fileName: fileName
+            fileName: fileName,
+            invoiceData: req.invoiceData
         })
     
         await invoice.save();
 
+        req.invoice = invoice;
         
 
         const content = fs.readFileSync('./assets/template.docx', 'binary');
@@ -221,8 +226,8 @@ async function createInvoice(req, res, next) {
         let zip = PizZip(content);
 
         let templateDoc = new Docxtemplater(zip, {
-            paragraphLoop: true,
-            linebreaks: true
+            //paragraphLoop: true,
+            //linebreaks: true
         })
         templateDoc.setData(data);
 
@@ -231,8 +236,10 @@ async function createInvoice(req, res, next) {
         const outputFile = './invoices/'+fileName;
         const outputContent = templateDoc.getZip().generate({ type: 'nodebuffer' });
 
-        // Save the generated document
-        fs.writeFileSync(outputFile, outputContent);
+        //res.send(outputContent)
+        req.binaryFile = outputContent;
+         //Save the generated document
+        //fs.writeFileSync(outputFile, outputContent);
         return next();
 
     } catch(err) {
