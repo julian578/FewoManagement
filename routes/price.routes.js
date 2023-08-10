@@ -1,5 +1,5 @@
 import express from "express"
-import { verifyToken } from "../security/jwtUtils.js";
+import { extractToken, verifyToken } from "../security/jwtUtils.js";
 import priceModel from "../models/Price.js";
 import PriceModel from "../models/Price.js";
 
@@ -7,7 +7,7 @@ import PriceModel from "../models/Price.js";
 const priceRouter = express.Router()
 
 //create new Price Object and safe it in the db
-priceRouter.post("/", verifyToken, async(req, res) => {
+priceRouter.post("/",extractToken, verifyToken, async(req, res) => {
     try {
         const price = new PriceModel(req.body);
 
@@ -23,7 +23,7 @@ priceRouter.post("/", verifyToken, async(req, res) => {
 
 
 //update the price of an existing price object
-priceRouter.put("/:subject", verifyToken, async(req, res) => {
+priceRouter.put("/:subject",extractToken, verifyToken, async(req, res) => {
     try {
 
         let price = await PriceModel.findOne({subject: req.params.subject});
@@ -41,7 +41,7 @@ priceRouter.put("/:subject", verifyToken, async(req, res) => {
 })
 
 //get price object by it's value
-priceRouter.get("/:subject", verifyToken, async(req, res) => {
+priceRouter.get("/:subject",extractToken, verifyToken, async(req, res) => {
     try {
 
         const price = await PriceModel.findOne({subject: req.params.subject});
@@ -54,7 +54,7 @@ priceRouter.get("/:subject", verifyToken, async(req, res) => {
 
 
 //get all price objects
-priceRouter.get("/", verifyToken, async(req, res) => {
+priceRouter.get("/",extractToken, verifyToken, async(req, res) => {
     const prices = await PriceModel.find();
     res.json(prices);
 })

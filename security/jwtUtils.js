@@ -31,7 +31,7 @@ async function verifyToken(req, res, next) {
     
     
     try {
-        const token = extractToken(req, res);
+        const token = req.token
         jwt.verify(token, "secretkey", (err, authData) => {
             if(err) {
                 console.log(err);
@@ -53,17 +53,18 @@ async function verifyToken(req, res, next) {
 
 
 //extract the jwt from request headers
-function extractToken(req, res) {
+async function extractToken(req, res, next) {
     try {
         const bearer = req.headers["authorization"];
         
         const token = bearer.substring(7);
 
-        return token;
+        req.token = token;
+        return next();
     } catch(err) {
         console.log(err);
         res.sendStatus(403);
     }
 }
 
-export {createToken, verifyToken};
+export {createToken, verifyToken, extractToken};

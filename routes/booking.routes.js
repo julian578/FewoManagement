@@ -1,5 +1,5 @@
 import express, { response } from 'express';
-import { verifyToken } from '../security/jwtUtils.js';
+import { verifyToken, extractToken } from '../security/jwtUtils.js';
 import { BookingModel } from '../models/Booking.js';
 import { UserModel } from '../models/User.js';
 import ClientModel from '../models/Client.js';
@@ -13,7 +13,7 @@ import fs from 'fs';
 const bookingRouter = express.Router();
 
 //create new booking
-bookingRouter.post("/create", verifyToken, getPriceForTwo, getPriceAdditionalPerson, getCleaningPrice, getPriceAnimal, async (req, res) => {
+bookingRouter.post("/create", extractToken, verifyToken, getPriceForTwo, getPriceAdditionalPerson, getCleaningPrice, getPriceAnimal, async (req, res) => {
 
     console.log("test")
     const priceTwo = req.priceTwoNight;
@@ -73,7 +73,7 @@ bookingRouter.post("/create", verifyToken, getPriceForTwo, getPriceAdditionalPer
 
 
 //create new client
-bookingRouter.post("/client", verifyToken, async(req, res) => {
+bookingRouter.post("/client", extractToken, verifyToken, async(req, res) => {
     try {
         const client = new ClientModel(req.body);
         await client.save();
@@ -87,7 +87,7 @@ bookingRouter.post("/client", verifyToken, async(req, res) => {
 })
 
 //update booking
-bookingRouter.put("/:id", verifyToken, async(req, res) => {
+bookingRouter.put("/:id",extractToken, verifyToken, async(req, res) => {
     try {
         let booking = await BookingModel.findOne({_id: req.params.id});
         await booking.updateOne(req.body);
@@ -100,7 +100,7 @@ bookingRouter.put("/:id", verifyToken, async(req, res) => {
 })
 
 //update clientData
-bookingRouter.post("/client/:id", verifyToken, async(req, res) => {
+bookingRouter.post("/client/:id",extractToken, verifyToken, async(req, res) => {
     try {
         console.log("update");
         let client = await ClientModel.findOne({_id: req.params.id});
@@ -119,7 +119,7 @@ bookingRouter.post("/client/:id", verifyToken, async(req, res) => {
 
 
 //get all clients
-bookingRouter.get("/client", verifyToken, async(req, res) => {
+bookingRouter.get("/client",extractToken, verifyToken, async(req, res) => {
     try {
 
         const clients = await ClientModel.find();
@@ -132,7 +132,7 @@ bookingRouter.get("/client", verifyToken, async(req, res) => {
 })
 
 //get ceratin client by Id
-bookingRouter.get("/client/:id", verifyToken, async(req, res) => {
+bookingRouter.get("/client/:id",extractToken, verifyToken, async(req, res) => {
     try {
 
         const client = await ClientModel.findOne({_id: req.params.id});
@@ -146,7 +146,7 @@ bookingRouter.get("/client/:id", verifyToken, async(req, res) => {
 
 
 //check if a flat is available for the requested period of time
-bookingRouter.post("/available", verifyToken, async(req, res) => {
+bookingRouter.post("/available",extractToken, verifyToken, async(req, res) => {
     try {
 
         const flatNumber = req.body.flatNumber;
@@ -188,7 +188,7 @@ bookingRouter.post("/available", verifyToken, async(req, res) => {
 
 
 //receive all existing bookings
-bookingRouter.get("/all", verifyToken, async(req, res) => {
+bookingRouter.get("/all",extractToken, verifyToken, async(req, res) => {
     try {
         console.log("empfangen")
         const bookings = await BookingModel.find();
@@ -201,7 +201,7 @@ bookingRouter.get("/all", verifyToken, async(req, res) => {
 
 
 //delete booking by Id
-bookingRouter.delete("/delete/:id", verifyToken, async(req, res) => {
+bookingRouter.delete("/delete/:id",extractToken, verifyToken, async(req, res) => {
     try {
         const booking = await BookingModel.findOne({_id: req.params.id});
         if(booking.invoiceStatus !== 0) {
@@ -223,7 +223,7 @@ bookingRouter.delete("/delete/:id", verifyToken, async(req, res) => {
 })
 
 //delete all bookings
-bookingRouter.delete("/", verifyToken, async(req, res) => {
+bookingRouter.delete("/",extractToken, verifyToken, async(req, res) => {
 
     try {
 
@@ -237,7 +237,7 @@ bookingRouter.delete("/", verifyToken, async(req, res) => {
 });
 
 //get bookings by name of the client
-bookingRouter.post("/name", verifyToken, async(req, res) => {
+bookingRouter.post("/name",extractToken, verifyToken, async(req, res) => {
 
     try {
         const clients = await ClientModel.find({fullName: req.body.name});
@@ -272,7 +272,7 @@ bookingRouter.post("/name", verifyToken, async(req, res) => {
 });
 
 //get booking by invoiceId
-bookingRouter.get("/invoice/:invoiceId", verifyToken, async(req, res) => {
+bookingRouter.get("/invoice/:invoiceId",extractToken, verifyToken, async(req, res) => {
 
     try {
 
@@ -301,7 +301,7 @@ bookingRouter.get("/invoice/:invoiceId", verifyToken, async(req, res) => {
 });
 
 
-bookingRouter.delete("/client", verifyToken, async(req, res) => {
+bookingRouter.delete("/client",extractToken, verifyToken, async(req, res) => {
 
     try {
         await ClientModel.deleteMany();
@@ -312,6 +312,8 @@ bookingRouter.delete("/client", verifyToken, async(req, res) => {
         res.sendStatus(500);
     }
 });
+
+
 
 
 function calculateNumberOfNights(arrivalDateString, leavingDateString) {
@@ -362,7 +364,7 @@ function calculateTotalPrice(priceNightTwo, priceNightAdditional, priceNightAnim
 
 
 //get all bookings without created invoice
-bookingRouter.get("/no-invoice", verifyToken, async (req, res) => {
+bookingRouter.get("/no-invoice",extractToken, verifyToken, async (req, res) => {
     try {
         const bookings = await BookingModel.find({invoiceStatus: 0});
 

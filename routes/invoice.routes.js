@@ -1,5 +1,5 @@
 import express from 'express';
-import { verifyToken } from '../security/jwtUtils.js';
+import { extractToken, verifyToken } from '../security/jwtUtils.js';
 import InvoiceModel from '../models/Invoice.js';
 import { createInvoice, generateInvoiceData, loadBooking, loadClient } from '../middlewares/InvoiceCreation.js';
 import { BookingModel } from '../models/Booking.js';
@@ -9,7 +9,7 @@ import ClientModel from '../models/Client.js';
 const invoiceRouter = express.Router();
 
 //generate new invoice
-invoiceRouter.post("/", verifyToken, loadBooking, loadClient, generateInvoiceId, generateInvoiceData, createInvoice, async(req, res ) => {
+invoiceRouter.post("/",extractToken, verifyToken, loadBooking, loadClient, generateInvoiceId, generateInvoiceData, createInvoice, async(req, res ) => {
     try {
         const booking = req.booking;
 
@@ -29,7 +29,7 @@ invoiceRouter.post("/", verifyToken, loadBooking, loadClient, generateInvoiceId,
 
 
 //get all invoices
-invoiceRouter.get("/", verifyToken, async(req, res) => {
+invoiceRouter.get("/",extractToken, verifyToken, async(req, res) => {
     try {
 
         const invoices = await InvoiceModel.find();
@@ -43,7 +43,7 @@ invoiceRouter.get("/", verifyToken, async(req, res) => {
 
 
 //get invoice by invoiceId
-invoiceRouter.get("/invoiceId/:invoiceId", verifyToken, async(req, res) => {
+invoiceRouter.get("/invoiceId/:invoiceId",extractToken, verifyToken, async(req, res) => {
 
     try {
 
@@ -57,7 +57,7 @@ invoiceRouter.get("/invoiceId/:invoiceId", verifyToken, async(req, res) => {
 
 
 //get invoice by bookingId
-invoiceRouter.get("/:booking", verifyToken, async(req, res) => {
+invoiceRouter.get("/:booking",extractToken, verifyToken, async(req, res) => {
     try {
 
         const invoice = await InvoiceModel.findOne({booking: req.params.booking});
@@ -70,7 +70,7 @@ invoiceRouter.get("/:booking", verifyToken, async(req, res) => {
 
 
 
-invoiceRouter.get("/booking/:clientId", verifyToken, async(req, res) => {
+invoiceRouter.get("/booking/:clientId",extractToken, verifyToken, async(req, res) => {
 
     try {
 
@@ -83,7 +83,7 @@ invoiceRouter.get("/booking/:clientId", verifyToken, async(req, res) => {
 });
 
 
-invoiceRouter.delete("/all", verifyToken, async(req, res) => {
+invoiceRouter.delete("/all",extractToken, verifyToken, async(req, res) => {
 
     try {
         await InvoiceModel.deleteMany();
