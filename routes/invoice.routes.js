@@ -9,6 +9,7 @@ import ClientModel from '../models/Client.js';
 const invoiceRouter = express.Router();
 
 //generate new invoice
+
 invoiceRouter.post("/",extractToken, verifyToken, loadBooking, loadClient, generateInvoiceId, generateInvoiceData, createInvoice, async(req, res ) => {
     try {
         const booking = req.booking;
@@ -95,16 +96,35 @@ invoiceRouter.delete("/all",extractToken, verifyToken, async(req, res) => {
 });
 
 async function generateInvoiceId(req, res, next) {
-    const invoices = (await InvoiceModel.find()).reverse();
-    if(invoices.length > 0) {
-        req.invoiceId = invoices[0].invoiceId + 1
-    } else {
 
-        req.invoiceId = 50000001;
+    try {
+
+        if(req.booking.invoiceStatus !== 0) {
+            const invoice = await InvoiceModel.findOne({
+                booking: req.booking._id
+            });
+            req.invoiceId = invoice.invoiceId;
+
+            await InvoiceModel.deleteOne({booking: req.booking._id});
+        }
+        else {
+            const invoices = (await InvoiceModel.find()).reverse();
+            if(invoices.length > 0) {
+                req.invoiceId = invoices[0].invoiceId + 1
+            } else {
+        
+                req.invoiceId = 50000001;
+            
+            }
+        }
+        
     
+        return next();
+    } catch(err) {
+        console.log(err);
+        res.sendStatus(500);
     }
-
-    return next();
+    
 }
 
 export default invoiceRouter;
