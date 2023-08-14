@@ -65,7 +65,7 @@ userRouter.post("/login", async(req, res) => {
 
 
 //add role to user
-userRouter.put("/addRole", checkAdminRole, extractToken, verifyToken, async(req, res) => {
+userRouter.put("/addRole", extractToken, verifyToken, checkAdminRole, async(req, res) => {
 
     try {
 
@@ -126,7 +126,7 @@ userRouter.get("/all", extractToken, verifyToken, checkAdminRole, async (req, re
 })
 
 //delete user by id
-userRouter.delete("/delete/:_id", checkAdminRole, async (req, res) => {
+userRouter.delete("/delete/:_id", extractToken, verifyToken, checkAdminRole, async (req, res) => {
     try {
         await UserModel.deleteOne({_id:req.params._id})
         res.sendStatus(200)
@@ -137,6 +137,28 @@ userRouter.delete("/delete/:_id", checkAdminRole, async (req, res) => {
     
 })
 
+//delete user by name
+userRouter.post("/deleteByName", extractToken, verifyToken, checkAdminRole, async(req, res) => {
+
+    try {
+
+        const user = await UserModel.findOne({
+            name: req.body.name
+        });
+        if(user) {
+            await UserModel.deleteOne({_id: user._id});
+            res.sendStatus(200);
+        }
+        else {
+            res.sendStatus(404);
+        }
+        
+        
+    } catch(err) {
+        console.log(err);
+        res.sendStatus(500);
+    }
+});
 
 export{userRouter};
 
