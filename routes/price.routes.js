@@ -2,12 +2,13 @@ import express from "express"
 import { extractToken, verifyToken } from "../security/jwtUtils.js";
 import priceModel from "../models/Price.js";
 import PriceModel from "../models/Price.js";
+import { checkAdvancedUserRole } from "../middlewares/UserMiddelwares.js";
 
 
 const priceRouter = express.Router()
 
 //create new Price Object and safe it in the db
-priceRouter.post("/",extractToken, verifyToken, async(req, res) => {
+priceRouter.post("/",extractToken, verifyToken, checkAdvancedUserRole, async(req, res) => {
     try {
         const price = new PriceModel(req.body);
 
@@ -23,7 +24,7 @@ priceRouter.post("/",extractToken, verifyToken, async(req, res) => {
 
 
 //update the price of an existing price object
-priceRouter.put("/:subject",extractToken, verifyToken, async(req, res) => {
+priceRouter.put("/:subject",extractToken, verifyToken, checkAdvancedUserRole, async(req, res) => {
     try {
 
         let price = await PriceModel.findOne({subject: req.params.subject});

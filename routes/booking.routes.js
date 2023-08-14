@@ -8,6 +8,7 @@ import {getPriceForTwo, getPriceAdditionalPerson, getCleaningPrice, getPriceAnim
 import { loadBooking, loadClient } from '../middlewares/InvoiceCreation.js';
 import InvoiceModel from '../models/Invoice.js';
 import fs from 'fs';
+import { checkAdminRole, checkAdvancedUserRole } from '../middlewares/UserMiddelwares.js';
 
 
 const bookingRouter = express.Router();
@@ -119,7 +120,7 @@ bookingRouter.post("/client/:id",extractToken, verifyToken, async(req, res) => {
 
 
 //get all clients
-bookingRouter.get("/client",extractToken, verifyToken, async(req, res) => {
+bookingRouter.get("/client",extractToken, verifyToken,  async(req, res) => {
     try {
 
         const clients = await ClientModel.find();
@@ -201,7 +202,7 @@ bookingRouter.get("/all",extractToken, verifyToken, async(req, res) => {
 
 
 //delete booking by Id
-bookingRouter.delete("/delete/:id",extractToken, verifyToken, async(req, res) => {
+bookingRouter.delete("/delete/:id",extractToken, verifyToken, checkAdvancedUserRole, async(req, res) => {
     try {
         const booking = await BookingModel.findOne({_id: req.params.id});
         if(booking.invoiceStatus !== 0) {
@@ -223,7 +224,7 @@ bookingRouter.delete("/delete/:id",extractToken, verifyToken, async(req, res) =>
 })
 
 //delete all bookings
-bookingRouter.delete("/",extractToken, verifyToken, async(req, res) => {
+bookingRouter.delete("/",extractToken, verifyToken, checkAdminRole, async(req, res) => {
 
     try {
 
@@ -301,7 +302,7 @@ bookingRouter.get("/invoice/:invoiceId",extractToken, verifyToken, async(req, re
 });
 
 
-bookingRouter.delete("/client",extractToken, verifyToken, async(req, res) => {
+bookingRouter.delete("/client",extractToken, verifyToken, checkAdminRole, async(req, res) => {
 
     try {
         await ClientModel.deleteMany();

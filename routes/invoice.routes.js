@@ -4,13 +4,14 @@ import InvoiceModel from '../models/Invoice.js';
 import { createInvoice, generateInvoiceData, loadBooking, loadClient } from '../middlewares/InvoiceCreation.js';
 import { BookingModel } from '../models/Booking.js';
 import ClientModel from '../models/Client.js';
+import { checkAdminRole, checkAdvancedUserRole } from '../middlewares/UserMiddelwares.js';
 
 
 const invoiceRouter = express.Router();
 
 //generate new invoice
 
-invoiceRouter.post("/",extractToken, verifyToken, loadBooking, loadClient, generateInvoiceId, generateInvoiceData, createInvoice, async(req, res ) => {
+invoiceRouter.post("/",extractToken, verifyToken, checkAdvancedUserRole, loadBooking, loadClient, generateInvoiceId, generateInvoiceData, createInvoice, async(req, res ) => {
     try {
         const booking = req.booking;
 
@@ -84,7 +85,7 @@ invoiceRouter.get("/booking/:clientId",extractToken, verifyToken, async(req, res
 });
 
 
-invoiceRouter.delete("/all",extractToken, verifyToken, async(req, res) => {
+invoiceRouter.delete("/all",extractToken, verifyToken, checkAdminRole, async(req, res) => {
 
     try {
         await InvoiceModel.deleteMany();

@@ -1,14 +1,17 @@
 import express from 'express';
 import bcrypt from 'bcryptjs';
 import { UserModel } from '../models/User.js';
-import { createToken } from '../security/jwtUtils.js';
+import { createToken, extractToken, verifyToken } from '../security/jwtUtils.js';
+import { checkAdminRole, checkAdvancedUserRole } from '../middlewares/UserMiddelwares.js';
+
 
 const userRouter = express.Router();
 
 //register new user
-userRouter.post("/register", async(req, res) => {
+userRouter.post("/register", extractToken, verifyToken, checkAdminRole, async(req, res) => {
         
         var transmittedUser = req.body;
+        transmittedUser.roles = ["USER"];
         
         bcrypt.genSalt(10, (err, salt) => {
             bcrypt.hash(transmittedUser.password, salt, async (err, hash) => {
@@ -21,6 +24,7 @@ userRouter.post("/register", async(req, res) => {
                     await user.save();
                     res.json(user);
                 } catch(err) {
+                    console.log(err);
                     res.sendStatus(400)
                 }
                 
@@ -59,13 +63,70 @@ userRouter.post("/login", async(req, res) => {
     }
 })
 
-userRouter.get("/all", async (req, res) => {
+
+//add role to user
+userRouter.put("/addRole", checkAdminRole, extractToken, verifyToken, async(req, res) => {
+
+    try {
+
+        let user = await UserModel.findOne({name: req.body.name});
+
+        var roles = user.roles;
+        console.log(roles);
+        console.log(req.body.new_roles)
+        req.body.new_roles.forEach(role => {
+            if(roles.indexOf(role) === -1) {
+                roles.push(role);
+            }
+            
+        });
+
+        var new_user = {
+            name: user.name,
+            password: user.password,
+            roles: roles
+        }
+
+
+        await user.updateOne(new_user);
+
+        res.json(new_user);
+
+    } catch(err) {
+        console.log(err);
+        res.sendStatus(500);
+    }
+});
+
+
+userRouter.get("/hasRole/:role", extractToken, verifyToken, async(req, res) => {
+    try {
+
+        const user = req.loggedInUser;
+        var response = false;
+        if(user.roles.indexOf(req.params.role) !== -1) {
+            
+            response = true;
+        } 
+
+        res.json({hasRole: response});
+        
+
+    } catch(err) {
+        console.log(err);
+        res.sendStatus(500);
+    }
+});
+
+
+
+userRouter.get("/all", extractToken, verifyToken, checkAdminRole, async (req, res) => {
     const user = await UserModel.find();
     res.json(user)
 })
 
 //delete user by id
-userRouter.delete("/delete/:_id", async (req, res) => {
+userRouter.delete("/delete/:_id", checkAdminRole, async (req, res) => {
     try {
         await UserModel.deleteOne({_id:req.params._id})
         res.sendStatus(200)

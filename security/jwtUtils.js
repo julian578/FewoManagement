@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import { UserModel } from '../models/User.js';
 
 
 //generate jwt token when user tries to log in
@@ -32,14 +33,22 @@ async function verifyToken(req, res, next) {
     
     try {
         const token = req.token
-        jwt.verify(token, "secretkey", (err, authData) => {
+        jwt.verify(token, "secretkey", async (err, authData) => {
             if(err) {
                 console.log(err);
                 res.sendStatus(403);
             } else {
 
-                console.log(token)
+                
                 req.token = token;
+
+                const decoded = jwt.verify(token, "secretkey");
+                
+
+                const user = await UserModel.findOne({name: decoded.user.name});
+                
+                req.loggedInUser = user;
+                console.log(req.loggedInUser)
                 
                 return next();  
             }

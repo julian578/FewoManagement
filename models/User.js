@@ -12,9 +12,10 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    //USER, ADVANCED_USER, ADMIN
     roles: Array
 })
 
 const UserModel = mongoose.model("User", userSchema);
 
-export{UserModel}
+export{UserModel};
