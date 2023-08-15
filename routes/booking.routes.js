@@ -206,15 +206,14 @@ bookingRouter.delete("/delete/:id",extractToken, verifyToken, checkAdvancedUserR
     try {
         const booking = await BookingModel.findOne({_id: req.params.id});
         if(booking.invoiceStatus !== 0) {
-            const invoice = await InvoiceModel.findOne({booking: booking._id});
-
-            fs.unlink("./invoices/"+invoice.fileName, async () => {
-                await ClientModel.deleteOne({_id: booking.clientId});
-                await BookingModel.deleteOne({_id: req.params.id});
-                res.sendStatus(200)
-            });
-
+            
+            await InvoiceModel.deleteOne({booking: booking._id});
+            
+  
         }
+
+        await BookingModel.deleteOne({_id: req.params.id});
+        res.sendStatus(200);
 
         
     } catch(err) {

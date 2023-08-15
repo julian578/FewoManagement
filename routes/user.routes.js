@@ -71,26 +71,32 @@ userRouter.put("/addRole", extractToken, verifyToken, checkAdminRole, async(req,
 
         let user = await UserModel.findOne({name: req.body.name});
 
-        var roles = user.roles;
-        console.log(roles);
-        console.log(req.body.new_roles)
-        req.body.new_roles.forEach(role => {
-            if(roles.indexOf(role) === -1) {
-                roles.push(role);
+        if(user) {
+            var roles = user.roles;
+            console.log(roles);
+            console.log(req.body.new_roles)
+            req.body.new_roles.forEach(role => {
+                if(roles.indexOf(role) === -1) {
+                    roles.push(role);
+                }
+                
+            });
+    
+            var new_user = {
+                name: user.name,
+                password: user.password,
+                roles: roles
             }
-            
-        });
-
-        var new_user = {
-            name: user.name,
-            password: user.password,
-            roles: roles
+    
+    
+            await user.updateOne(new_user);
+    
+            res.json(new_user);
+        } else {
+            console.log("not found")
+            res.sendStatus(404);
         }
-
-
-        await user.updateOne(new_user);
-
-        res.json(new_user);
+        
 
     } catch(err) {
         console.log(err);
