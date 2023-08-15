@@ -5,6 +5,7 @@ import { bookingRouter } from './routes/booking.routes.js';
 import 'dotenv/config'
 import priceRouter from './routes/price.routes.js';
 import invoiceRouter from './routes/invoice.routes.js';
+import filePathRouter from './routes/filePath.routes.js';
 
 
 
@@ -17,6 +18,7 @@ app.use("/api/user", userRouter);
 app.use("/api/booking", bookingRouter);
 app.use("/api/price", priceRouter);
 app.use("/api/invoice", invoiceRouter);
+app.use("/api/filePath", filePathRouter);
 
 mongoose.connect(dbUrl)
 

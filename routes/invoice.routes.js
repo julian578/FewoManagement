@@ -63,7 +63,10 @@ invoiceRouter.get("/:booking",extractToken, verifyToken, async(req, res) => {
     try {
 
         const invoice = await InvoiceModel.findOne({booking: req.params.booking});
-        res.json(invoice);
+
+
+        if(invoice) res.json(invoice);
+        else res.json({});
     } catch(err) {
         console.log(err);
         res.sendStatus(500);
@@ -77,7 +80,8 @@ invoiceRouter.get("/booking/:clientId",extractToken, verifyToken, async(req, res
     try {
 
         const booking = await BookingModel.findOne({clientId: req.params.clientId});
-        res.json(booking);
+        if(booking) res.json(booking);
+        else res.json({});
     } catch(err) {
         console.log(err);
         res.sendStatus(500);

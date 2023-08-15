@@ -125,6 +125,7 @@ bookingRouter.get("/client",extractToken, verifyToken,  async(req, res) => {
 
         const clients = await ClientModel.find();
         res.json(clients);
+        
 
     } catch(err) {
         console.log(err);
@@ -137,7 +138,8 @@ bookingRouter.get("/client/:id",extractToken, verifyToken, async(req, res) => {
     try {
 
         const client = await ClientModel.findOne({_id: req.params.id});
-        res.json(client);
+        if(client) res.json(client);
+        else res.json({});
 
     } catch(err) {
         console.log(err);
